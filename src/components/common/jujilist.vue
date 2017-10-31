@@ -28,7 +28,7 @@
 						<span class="p-tabs-con">{{v.channelName}}：{{v.epgName}}</span>
 						<span class="icon-p-tabs  icon-undo2"  :class=" v.epgID == endTimeArr.epgID ? 'playa':'' " v-if="dateCompa(v.startTime)<0"></span>
 
-						<span class="icon-p-tabs icon-alarm"  v-if="dateCompa(v.startTime)>0"></span>
+						<span class="icon-p-tabs icon-alarm"  :appoint="v.epgID"  v-if="dateCompa(v.startTime)>0"></span>
 					</div>
 				</div>
 
@@ -46,10 +46,14 @@ export default {
     },
     getDay: {
       type: Number
+    },
+    appointData:{
+      type: Array
     }
   },
   data() {
     return {
+    
       authority : '', //截取后的鉴权返回值
       isok: true,//是否默认选中
       weekIndex: "",
@@ -58,8 +62,7 @@ export default {
       playIndex: "",
       monday: Monday,
       puser:sessionStorage.getItem('user'),
-      ptoken:sessionStorage.getItem('flag'),
-      playUrl: ''
+      ptoken:sessionStorage.getItem('flag')
     };
   },
 
@@ -80,23 +83,40 @@ export default {
       } else {
         return false;
       }
+    },
+    //默认预定的  比当前大的
+    startAppoint: function(){
+      // if (this.getDay == this.nowIndex) {
+        let arr = [];
+        this.appointData.forEach(function( item,index ){
+          if (this.dateCompa(item.remindTime) > 0) {  //如果时间比当前时间大
+              arr.push(item);
+          }
+        }.bind(this))
+        return arr;
+      // } else {
+      //   return false;
+      // }
     }
+
   },
 
   created() {
-    // $(".tabs-hd-list.cur").click();
-  
+   
   },
   mounted() {
-    //  this.changeMovie( this.detailData,{} )
-  //  console.log( this.$route.params.channelid.split('_')[0] )
-     console.log(  )
+
+   setTimeout(function() {
+     this.startAppoint.forEach(function(item,index){
+       $( '[appoint='+item.programID+']' ).addClass( 'yuding' )
+     })
+   }.bind( this ), 120);
     
   },
   methods: {
     changeTab(index, date) {
       this.nowIndex = index;
-      this.$emit("dateData", date);
+      this.$emit("dateData", date,this.startAppoint);
     },
     playerClick(index) {
       this.playIndex = index;
@@ -124,42 +144,74 @@ export default {
         second;
       return dateComparate(d);
     },
-    //预定提醒
-  appoint( val ){
+    //添加预定提醒
+  addAppoint( val ){
     var self = this;
-    // let url = `/api/PortalServer-App/new/ptl_ipvp_live_live024?ptype=${self.GLOBAL.config.ptype}&plocation=${self.GLOBAL.config.plocation}&puser=${self.puser}&ptoken=${self.ptoken}
-    // &pversion=03010&pserverAddress=${self.$route.params.channelid.split('_')[0]}&pserialNumber=${self.ptoken} `
-    self.$http({
+    this.$http({
 				method: 'post',
-        // url: url,
         url: '/api/PortalServer-App/new/ptl_ipvp_live_live024',
-				data: {
+				params: {
 				  ptype: self.GLOBAL.config.ptype,
           plocation: self.GLOBAL.config.plocation,
           puser: self.puser,
           ptoken: self.ptoken,
           pversion: '03010',
-          // ptv: '1',
-          // ptn: '',
           locationName: '',
           countyName: '',
-          hmace: '2e34151626',
+          hmace: '125456',
           timestamp: new Date().getTime(),
           nonce: Math.random().toString().slice(2),
 					pserverAddress: self.GLOBAL.config.pserverAddress,
-          pserialNumber: '',
-          // BODY: {
-              // channelID: self.$route.params.channelid.split('_')[0],
-              channelID: self.$route.params.channelid.split('_')[0],
-				      remindTime: val.startTime,
-          // }
-				}
+          pserialNumber: self.ptoken,
+             
+        },
+        //post用data
+        data:{
+          channelID: self.$route.params.channelid.split('_')[0],
+          remindTime: val.startTime
+        }
 			})
 			.then((res) => {
-        // alert(1)
-        alert(res.data.status)
-        if(res.data.status == 0) {
-				    console.log(66)
+        	if(res.data.status == 0) {
+           this.$message( '你已成功订阅' );
+          
+ 				}
+			})
+			.catch((res) => {
+				alert(res.data.errorMessage)
+			})
+  },
+    //删除预定提醒
+  delAppoint( val ){
+    var self = this;
+    this.$http({
+				method: 'post',
+        url: '/api/PortalServer-App/new/ptl_ipvp_live_live025',
+				params: {
+				  ptype: self.GLOBAL.config.ptype,
+          plocation: self.GLOBAL.config.plocation,
+          puser: self.puser,
+          ptoken: self.ptoken,
+          pversion: '03010',
+          locationName: '',
+          countyName: '',
+          hmace: '125456',
+          timestamp: new Date().getTime(),
+          nonce: Math.random().toString().slice(2),
+					pserverAddress: self.GLOBAL.config.pserverAddress,
+          pserialNumber: self.ptoken,
+             
+        },
+        //post用data
+        data:{
+          channelID: self.$route.params.channelid.split('_')[0],
+          remindTime: val.startTime
+        }
+			})
+			.then((res) => {
+        	if(res.data.status == 0) {
+            this.$message( '取消订阅' )
+            
 				}
 			})
 			.catch((res) => {
@@ -167,6 +219,8 @@ export default {
 			})
   },
     changeMovies(val, el) {
+
+    
       if (this.dateCompa(val.startTime) > 0) {  //如果时间比当前时间大
 
           let user = sessionStorage.getItem('user')
@@ -175,37 +229,35 @@ export default {
             return false;
           }
 
+          //订阅
           let target = $( el.target ).closest(".player-tabs-list ").find('.icon-alarm');
           target.toggleClass( 'yuding' );
           if( target.hasClass( 'yuding' )  ){
               
-              this.appoint( val );
-              this.$message( '你已成功订阅' );
-             
+              this.addAppoint( val );
 
           }else{
 
-            //  val.selectAppoint = 0;
-             this.$message( '取消订阅' )
+             this.delAppoint( val )
 
           }
+
       } else {
+
+        this.broadcast()
 
         this.isok = false;
         $(".player-tabs-list ").removeClass("player-cur aaa");
         $(el.target)
           .closest(".player-tabs-list ")
           .addClass("player-cur aaa");
-
-          // setTimeout(function() {
-          //   alert(this.authority)
-          // }, 800)
-        // alert(this.authority)
-        // let value = val.historyUrl[0]['3']+'&'+this.authority;
-        // console.log(JSON.stringify(value))
+      }
 
 
-        // this.playUrl = this.broadcast(val.historyUrl[0]['3'])
+      console.log(val);
+    },
+    //请求鉴权  
+    broadcast(){
         let self = this;
          this.$http({
             method: 'get',
@@ -234,60 +286,16 @@ export default {
           })
           .then((res) => {
               if(res.data.status == 0) {
-                this.authority = res.data.data.authResult.split('?')[1];
-                let value = val.historyUrl[0]['3']+'&'+this.authority;
-                // alert(JSON.stringify(value))
-                this.playUrl = value
-                alert(this.playUrl)
-                this.$emit('playUrl', value)
-                // console.log(res.data.data.authResult.split('?')[1])
+                let str = res.data.data.authResult.split('?')[1];
+                
+                // console.log( str )
+                this.authority = 1;
             }
           })
           .catch((res) => {
             alert(res.data.errorMessage)
           })
-      }
-    },
-    //请求鉴权  
-    // broadcast(value){
-    //     let self = this;
-    //      this.$http({
-    //         method: 'get',
-    //         url: '/api/PortalServer-App/new/aaa_aut_aut002',
-    //         params: {
-    //           ptype: self.GLOBAL.config.ptype,
-    //           plocation: self.GLOBAL.config.plocation,
-    //           puser: self.puser,
-    //           ptoken: self.ptoken,
-    //           pversion: '030101',
-    //           timestamp: new Date().getTime(),
-    //           v: '2',
-    //           u: self.puser,
-    //           d: '',
-    //           nonce: Math.random().toString().slice(2),
-    //           hmac: '',
-    //           DRMtoken: '',
-    //           p: '3',
-    //           n: '',
-    //           l: '001',
-    //           cid: this.$route.params.channelid.split('_')[0],
-    //           pserverAddress: this.GLOBAL.config.pserverAddress,
-    //           pserialNumber: self.ptoken,
-
-    //         }
-    //       })
-    //       .then((res) => {
-    //           if(res.data.status == 0) {
-    //             // this.authority = res.data.data.authResult.split('?')[1];
-    //             // alert(this.authority)
-    //             value = value + '&' + res.data.data.authResult.split('?')[1]
-    //             // alert(value)
-    //         }
-    //       })
-    //       .catch((res) => {
-    //         alert(res.data.errorMessage)
-    //       })
-    // }
+    }
 
   },
   

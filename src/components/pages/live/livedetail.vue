@@ -1,7 +1,7 @@
 <template>
 	<section class="livedetail-wrap clearfix">
 		<player class="live-player">
-			<jujilist :getDay="getDay" :detailData="detailData" @dateData="dateData" @showPlayeUrl="playUrl"></jujilist>
+			<jujilist :getDay="getDay"  :appointData="appointData" :detailData="detailData" @dateData="dateData"></jujilist>
 		</player>
 		<div class="wrap clearfix">
 			<div class="episodes-bd">
@@ -41,21 +41,25 @@ export default {
 	},
 	data () {
 		return {
-
+			appointData: [],//查看预定的接口
 			detailData: [],
 			episodesData: [],
 			getDay:getDay(),
 			startTime: Monday(getDay())+'000000',
 			endTime: Monday(getDay())+'235959',
-			playUrl: ''
 			// monDay:Monday()
+			puser:sessionStorage.getItem('user'),
+     		ptoken:sessionStorage.getItem('flag')
 		}
 	},
 	created () {
 		
 	},
     mounted () {
-		this._getDetailData()
+		this.queryAppoint();
+		this._getDetailData();
+		
+		// console.log( this.detailData )
 		
     },
     watch: {
@@ -92,10 +96,22 @@ export default {
 				alert(res.data.errorMessage)
 			})
 		},
-		dateData (date) {
+		dateData (date,startAppoint) {
+			startAppoint = startAppoint || [];
+
 			this.startTime = date+'000000'
 			this.endTime = date+'235959'
 			this._getDetailData()
+			this.queryAppoint()
+
+			//初始化加渲染
+			$( '.yuding' ).removeClass( 'yuding' )
+			setTimeout(function() {
+				startAppoint.forEach(function(item,index){
+					$( '[appoint='+item.programID+']' ).addClass( 'yuding' )
+				})
+			}.bind( this ), 200);
+
 		},
 
 		dateCompa: function (date) {
@@ -108,10 +124,35 @@ export default {
 			let d = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second
             return dateComparate(d)
 		},
-		showPlayeUrl (value) {
-			this.playUrl = value
-			alert(111)
-		}
+		 //查询预定提醒
+		queryAppoint( ){
+			var self = this;
+			this.$http({
+				method: 'get',
+				url: '/api/PortalServer-App/new/ptl_ipvp_live_live023',
+						params: {
+							ptype: self.GLOBAL.config.ptype,
+							plocation: self.GLOBAL.config.plocation,
+							puser: self.puser,
+							ptoken: self.ptoken,
+							pversion: '03010',
+							pserverAddress: self.GLOBAL.config.pserverAddress,
+							pserialNumber: self.ptoken,
+							start: '',
+							end: ''
+							
+						},
+					})
+					.then((res) => {
+					if(res.data.status == 0) {
+						this.appointData = res.data.data.reminds
+					 }
+					})
+					.catch((res) => {
+						alert(res.data.errorMessage)
+					})
+		},
+		
 	}
 }
 </script>
@@ -127,4 +168,7 @@ export default {
 .infodiscrib-rest-bd .infodiscrib-bd, .infodiscrib-rest-bd .episodes-bd, .infodiscrib-rest-bd .infodiscrib-con { display: block; float: none; width: 100%; height: auto; padding-top: 0; }
 .live-player .palyer-le { width: 812px; height: 100%; }
 .palyer-box { color: #f00; }
+.yuding{
+  color: #ff9c01;
+}
 </style>

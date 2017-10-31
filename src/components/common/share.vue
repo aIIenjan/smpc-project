@@ -204,9 +204,10 @@ export default {
 .p-le-0 { padding-left: 0; }
 .p-ri-0 { padding-right: 0; }
 .p-btm-border { border-right: #aaa 1px solid; cursor: pointer;}
-.p-btm-border :hover { color: #ef9914; }
+.p-btm-border:hover span{ color: #ef9914; }
 .share-bd span { margin-right: 10px; }
 .s-hover:hover { color: #ef9914; }
+
 .tabs-hd-list i { display: block; margin-bottom: 5px; }
 .icon-p-tabs { position: absolute; right: 15px; top: 5px; font-size: 20px; }
 .bdshare-button-style0-24 .bds_qzone, .bdshare-button-style0-24 .bds_sqq, .bdshare-button-style0-24 .bds_weixin, .bdshare-button-style0-24 .bds_tsina { background: none; color: #aaa; font-size: 24px; padding: 0; margin: 0 10px 0 5px; }
