@@ -124,7 +124,8 @@ export default {
 			let d = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second
             return dateComparate(d)
 		},
-		 //查询预定提醒
+		
+		//查询预定提醒
 		queryAppoint( ){
 			var self = this;
 			this.$http({

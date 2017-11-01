@@ -19,7 +19,6 @@
 				</span>
 			</div>
 			<div class="player-tabs-con">
-				
 				<div class="player-tabchange" :class="{'block':item === nowIndex}" v-for="item in 7">
 					<div class="player-tabs-list" @click="changeMovies(v,$event)"  v-for="(v,index) in detailData"  :class=" v.epgID == endTimeArr.epgID && isok ? 'player-cur aaa':'' ">
 						<span class="p-tabs-time">
@@ -31,13 +30,12 @@
 						<span class="icon-p-tabs icon-alarm"  :appoint="v.epgID"  v-if="dateCompa(v.startTime)>0"></span>
 					</div>
 				</div>
-
 			</div>
 		</div>
 	</div>
 </template>
 <script type="text/ecmascript-6">
-import $ from "jquery";
+import $ from 'jquery';
 import { Monday, dateComparate } from "@/util";
 export default {
   props: {
@@ -53,7 +51,6 @@ export default {
   },
   data() {
     return {
-    
       authority : '', //截取后的鉴权返回值
       isok: true,//是否默认选中
       weekIndex: "",
@@ -100,18 +97,15 @@ export default {
     }
 
   },
-
   created() {
    
   },
   mounted() {
-
    setTimeout(function() {
      this.startAppoint.forEach(function(item,index){
        $( '[appoint='+item.programID+']' ).addClass( 'yuding' )
      })
-   }.bind( this ), 120);
-    
+   }.bind( this ), 120); 
   },
   methods: {
     changeTab(index, date) {
@@ -144,83 +138,82 @@ export default {
         second;
       return dateComparate(d);
     },
-    //添加预定提醒
-  addAppoint( val ){
-    var self = this;
-    this.$http({
-				method: 'post',
-        url: '/api/PortalServer-App/new/ptl_ipvp_live_live024',
-				params: {
-				  ptype: self.GLOBAL.config.ptype,
-          plocation: self.GLOBAL.config.plocation,
-          puser: self.puser,
-          ptoken: self.ptoken,
-          pversion: '03010',
-          locationName: '',
-          countyName: '',
-          hmace: '125456',
-          timestamp: new Date().getTime(),
-          nonce: Math.random().toString().slice(2),
-					pserverAddress: self.GLOBAL.config.pserverAddress,
-          pserialNumber: self.ptoken,
-             
-        },
-        //post用data
-        data:{
-          channelID: self.$route.params.channelid.split('_')[0],
-          remindTime: val.startTime
-        }
-			})
-			.then((res) => {
-        	if(res.data.status == 0) {
-           this.$message( '你已成功订阅' );
-          
- 				}
-			})
-			.catch((res) => {
-				alert(res.data.errorMessage)
-			})
-  },
-    //删除预定提醒
-  delAppoint( val ){
-    var self = this;
-    this.$http({
-				method: 'post',
-        url: '/api/PortalServer-App/new/ptl_ipvp_live_live025',
-				params: {
-				  ptype: self.GLOBAL.config.ptype,
-          plocation: self.GLOBAL.config.plocation,
-          puser: self.puser,
-          ptoken: self.ptoken,
-          pversion: '03010',
-          locationName: '',
-          countyName: '',
-          hmace: '125456',
-          timestamp: new Date().getTime(),
-          nonce: Math.random().toString().slice(2),
-					pserverAddress: self.GLOBAL.config.pserverAddress,
-          pserialNumber: self.ptoken,
-             
-        },
-        //post用data
-        data:{
-          channelID: self.$route.params.channelid.split('_')[0],
-          remindTime: val.startTime
-        }
-			})
-			.then((res) => {
-        	if(res.data.status == 0) {
-            this.$message( '取消订阅' )
-            
-				}
-			})
-			.catch((res) => {
-				alert(res.data.errorMessage)
-			})
-  },
-    changeMovies(val, el) {
-
     
+    //添加预定提醒
+    addAppoint( val ){
+      var self = this;
+      this.$http({
+  				method: 'post',
+          url: '/api/PortalServer-App/new/ptl_ipvp_live_live024',
+  				params: {
+  				  ptype: self.GLOBAL.config.ptype,
+            plocation: self.GLOBAL.config.plocation,
+            puser: self.puser,
+            ptoken: self.ptoken,
+            pversion: '03010',
+            locationName: '',
+            countyName: '',
+            hmace: '125456',
+            timestamp: new Date().getTime(),
+            nonce: Math.random().toString().slice(2),
+  					pserverAddress: self.GLOBAL.config.pserverAddress,
+            pserialNumber: self.ptoken,
+               
+          },
+          //post用data
+          data:{
+            channelID: self.$route.params.channelid.split('_')[0],
+            remindTime: val.startTime
+          }
+  			})
+  			.then((res) => {
+          	if(res.data.status == 0) {
+             this.$message( '你已成功订阅' );
+            
+   				}
+  			})
+  			.catch((res) => {
+  				alert(res.data.errorMessage)
+  			})
+    },
+
+    //删除预定提醒
+    delAppoint( val ){
+      var self = this;
+      this.$http({
+  				method: 'post',
+          url: '/api/PortalServer-App/new/ptl_ipvp_live_live025',
+  				params: {
+  				  ptype: self.GLOBAL.config.ptype,
+            plocation: self.GLOBAL.config.plocation,
+            puser: self.puser,
+            ptoken: self.ptoken,
+            pversion: '03010',
+            locationName: '',
+            countyName: '',
+            hmace: '125456',
+            timestamp: new Date().getTime(),
+            nonce: Math.random().toString().slice(2),
+  					pserverAddress: self.GLOBAL.config.pserverAddress,
+            pserialNumber: self.ptoken,     
+          },
+          //post用data
+          data:{
+            channelID: self.$route.params.channelid.split('_')[0],
+            remindTime: val.startTime
+          }
+  			})
+  			.then((res) => {
+          	if(res.data.status == 0) {
+              this.$message( '取消订阅' )
+              
+  				}
+  			})
+  			.catch((res) => {
+  				alert(res.data.errorMessage)
+  			})
+    },
+    changeMovies(val, el) {
       if (this.dateCompa(val.startTime) > 0) {  //如果时间比当前时间大
 
           let user = sessionStorage.getItem('user')
@@ -249,12 +242,10 @@ export default {
         this.isok = false;
         $(".player-tabs-list ").removeClass("player-cur aaa");
         $(el.target)
-          .closest(".player-tabs-list ")
+          .closest(".player-tabs-list")
           .addClass("player-cur aaa");
       }
-
-
-      console.log(val);
+      // console.log(val);
     },
     //请求鉴权  
     broadcast(){
@@ -296,10 +287,7 @@ export default {
             alert(res.data.errorMessage)
           })
     }
-
-  },
-  
-  
+  }, 
 };
 </script>
 

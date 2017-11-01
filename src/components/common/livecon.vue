@@ -3,11 +3,13 @@
 		<ul>
 			<li v-for="(v, index) in liveConData" @click.stop="urlDirect(v.contentID, v.extraInfo.channelID)">
 				<div class="pic-ri-top">
-					<!-- <img v-lazy="v.liveRealImg" alt=""> -->
 					<img v-lazy="v.contentImageUrl" alt="">
 		  			<span class="pic-mask">
 		  				<span class="pic-title">{{v.contentName}}</span>
-		  				<span class="mask-time">01-22 19:35</span>
+		  				<span class="mask-time">
+		  				{{v.extraInfo.epgStartTime.substr(4,2)}}-{{v.extraInfo.epgStartTime.substr(6,2)}}
+						{{v.extraInfo.epgStartTime.substr(8,2)}}:{{v.extraInfo.epgStartTime.substr(10,2)}}
+		  				</span>
 		  				<!-- <span class="progress-bar" :style="{ width: percentNum(dateCompa1(v.extraInfo.epgStartTime),dateCompa(v.extraInfo.epgEndTime,v.extraInfo.epgStartTime)) }"></span> -->
 		  			</span>
 				</div>
